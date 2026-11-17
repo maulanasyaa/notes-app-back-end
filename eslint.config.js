@@ -1,16 +1,9 @@
 import js from "@eslint/js";
 import globals from "globals";
-import prettierConfig from "eslint-config-prettier";
 import { defineConfig } from "eslint/config";
+import daStyle from 'eslint-config-dicodingacademy';
 
 export default defineConfig([
-  {
-    files: ["**/*.js"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      globals: globals.node,
-    },
-    extends: [js.configs.recommended, prettierConfig],
-  },
+  daStyle,
+  { files: ["**/*.{js,mjs,cjs}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: globals.node } },
 ]);
