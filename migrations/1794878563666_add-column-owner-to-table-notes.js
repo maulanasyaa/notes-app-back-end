@@ -1,13 +1,11 @@
 export const shorthands = undefined;
-
 export const up = (pgm) => {
-  pgm.addColumn('notes', {
+  pgm.addColumn("notes", {
     owner: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
     },
   });
 };
-
 export const down = (pgm) => {
-  pgm.dropColumn('notes', 'owner');
+  pgm.dropColumn("notes", "owner");
 };
