@@ -1,14 +1,16 @@
-import UserRepositories from '../repositories/user-repositories.js';
-import response from '../../../utils/response.js';
-import InvariantError from '../../../exceptions/invariant-error.js';
-import NotFoundError from '../../../exceptions/not-found-error.js';
+import UserRepositories from "../repositories/user-repositories.js";
+import response from "../../../utils/response.js";
+import InvariantError from "../../../exceptions/invariant-error.js";
+import NotFoundError from "../../../exceptions/not-found-error.js";
 
 export const createUser = async (req, res, next) => {
   const { username, password, fullname } = req.validated;
 
   const isUsernameExist = await UserRepositories.verifyNewUsername(username);
   if (isUsernameExist) {
-    return next(new InvariantError('Gagal menambahkan user. Username sudah digunakan.'));
+    return next(
+      new InvariantError("Gagal menambahkan user. Username sudah digunakan."),
+    );
   }
 
   const user = await UserRepositories.createUser({
@@ -18,15 +20,24 @@ export const createUser = async (req, res, next) => {
   });
 
   if (!user) {
-    return next(new InvariantError('User gagal ditambahkan'));
+    return next(new InvariantError("User gagal ditambahkan"));
   }
 
-  return response(res, 201, 'User berhasil ditambahkan', user);
+  return response(res, 201, "User berhasil ditambahkan", user);
+};
+
+export const getUsersByUsername = async (req, res, next) => {
+  const username = req.query.username;
+  const user = await UserRepositories.getUsersByUsername(username);
+  if (!user) {
+    return next(new NotFoundError("User tidak ditemukan"));
+  }
+  return response(res, 200, "User berhasil ditampilkan", { users: user });
 };
 
 export const getUsers = async (req, res) => {
   const users = await UserRepositories.getUsers();
-  return response(res, 200, 'Users berhasil ditampilkan', users);
+  return response(res, 200, "Users berhasil ditampilkan", users);
 };
 
 export const getUserById = async (req, res, next) => {
@@ -34,10 +45,10 @@ export const getUserById = async (req, res, next) => {
   const user = await UserRepositories.getUserById(id);
 
   if (!user) {
-    return next(new NotFoundError('User tidak ditemukan'));
+    return next(new NotFoundError("User tidak ditemukan"));
   }
 
-  return response(res, 200, 'User berhasil ditampilkan', user);
+  return response(res, 200, "User berhasil ditampilkan", user);
 };
 
 export const getUserByUsername = async (req, res, next) => {
@@ -45,10 +56,10 @@ export const getUserByUsername = async (req, res, next) => {
   const user = await UserRepositories.getUserByUsername(username);
 
   if (!user) {
-    return next(new NotFoundError('User tidak ditemukan'));
+    return next(new NotFoundError("User tidak ditemukan"));
   }
 
-  return response(res, 200, 'User berhasil ditampilkan', user);
+  return response(res, 200, "User berhasil ditampilkan", user);
 };
 
 export const editUser = async (req, res, next) => {
@@ -57,13 +68,15 @@ export const editUser = async (req, res, next) => {
 
   const existingUser = await UserRepositories.getUserById(id);
   if (!existingUser) {
-    return next(new NotFoundError('User tidak ditemukan'));
+    return next(new NotFoundError("User tidak ditemukan"));
   }
 
   if (username !== existingUser.username) {
     const isUsernameExist = await UserRepositories.verifyNewUsername(username);
     if (isUsernameExist) {
-      return next(new InvariantError('Username sudah digunakan oleh user lain'));
+      return next(
+        new InvariantError("Username sudah digunakan oleh user lain"),
+      );
     }
   }
 
@@ -74,7 +87,7 @@ export const editUser = async (req, res, next) => {
     fullname,
   });
 
-  return response(res, 200, 'User berhasil diperbarui', user);
+  return response(res, 200, "User berhasil diperbarui", user);
 };
 
 export const deleteUser = async (req, res, next) => {
@@ -82,8 +95,8 @@ export const deleteUser = async (req, res, next) => {
   const deletedUser = await UserRepositories.deleteUser(id);
 
   if (!deletedUser) {
-    return next(new NotFoundError('User tidak ditemukan'));
+    return next(new NotFoundError("User tidak ditemukan"));
   }
 
-  return response(res, 200, 'User berhasil dihapus', deletedUser);
+  return response(res, 200, "User berhasil dihapus", deletedUser);
 };

@@ -1,10 +1,19 @@
-import { Pool } from 'pg';
-import { nanoid } from 'nanoid';
-import bcrypt from 'bcrypt';
+import { Pool } from "pg";
+import { nanoid } from "nanoid";
+import bcrypt from "bcrypt";
 
 class UserRepositories {
   constructor() {
     this._pool = new Pool();
+  }
+
+  async getUsersByUsername(username) {
+    const query = {
+      text: "SELECT id, username, fullname FROM users WHERE username LIKE $1",
+      values: [`%${username}%`],
+    };
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 
   async createUser({ username, password, fullname }) {
@@ -14,7 +23,7 @@ class UserRepositories {
     const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+      text: "INSERT INTO users VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
       values: [id, username, hashedPassword, fullname, createdAt, updatedAt],
     };
 
@@ -25,7 +34,7 @@ class UserRepositories {
 
   async verifyNewUsername(username) {
     const query = {
-      text: 'SELECT username FROM users WHERE username = $1',
+      text: "SELECT username FROM users WHERE username = $1",
       values: [username],
     };
 
@@ -34,14 +43,14 @@ class UserRepositories {
     return result.rows.length > 0;
   }
   async getUsers() {
-    const result = await this._pool.query('SELECT * FROM users');
+    const result = await this._pool.query("SELECT * FROM users");
 
     return result.rows;
   }
 
   async getUserById(id) {
     const query = {
-      text: 'SELECT * FROM users WHERE id = $1',
+      text: "SELECT * FROM users WHERE id = $1",
       values: [id],
     };
 
@@ -52,10 +61,12 @@ class UserRepositories {
 
   async editUser({ id, username, password, fullname }) {
     const updatedAt = new Date().toISOString();
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
+    const hashedPassword = password
+      ? await bcrypt.hash(password, 10)
+      : undefined;
 
     const query = {
-      text: 'UPDATE users SET username = COALESCE($1, username), password = COALESCE($2, password), fullname = COALESCE($3, fullname), updated_at = $5 WHERE id = $6 RETURNING id, username, fullname, email, created_at, updated_at',
+      text: "UPDATE users SET username = COALESCE($1, username), password = COALESCE($2, password), fullname = COALESCE($3, fullname), updated_at = $5 WHERE id = $6 RETURNING id, username, fullname, email, created_at, updated_at",
       values: [username, hashedPassword, fullname, updatedAt, id],
     };
 
@@ -66,7 +77,7 @@ class UserRepositories {
 
   async deleteUser(id) {
     const query = {
-      text: 'DELETE FROM users WHERE id = $1 RETURNING id, username, fullname, created_at, updated_at',
+      text: "DELETE FROM users WHERE id = $1 RETURNING id, username, fullname, created_at, updated_at",
       values: [id],
     };
 
@@ -77,7 +88,7 @@ class UserRepositories {
 
   async getUserByUsername(username) {
     const query = {
-      text: 'SELECT id, username, fullname FROM users WHERE username LIKE $1',
+      text: "SELECT id, username, fullname FROM users WHERE username LIKE $1",
       values: [`%${username}%`],
     };
 
@@ -87,7 +98,7 @@ class UserRepositories {
 
   async verifyUserCredential(username, password) {
     const query = {
-      text: 'SELECT id, password FROM users WHERE username = $1',
+      text: "SELECT id, password FROM users WHERE username = $1",
       values: [username],
     };
 
